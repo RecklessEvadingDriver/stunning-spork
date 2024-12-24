@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terabox Player</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.2/alt/video-js-cdn.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.2/video.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/3.0.2/videojs-contrib-hls.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 20px;
+    }
+    input[type="text"] {
+      width: 60%;
+      padding: 8px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    input[type="button"] {
+      padding: 8px 15px;
+      background-color: #5a67d8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input[type="button"]:hover {
+      background-color: #4c51bf;
+    }
+    video {
+      margin-top: 20px;
+      max-width: 90%;
+    }
+  </style>
+</head>
+<body>
+  <h2>Terabox Player</h2>
+  <p>Enter a Terabox URL to play or download media</p>
+
+  <input type="text" id="url" placeholder="https://teraboxapp.com/s/1q24yEpsG0TAXsStsscZ3eZ">
+  <input type="button" id="btn" value="Play">
+  <input type="button" id="download" value="Download" disabled>
+
+  <br><br>
+
+  <video id="video" class="video-js vjs-default-skin" preload="none" crossorigin="anonymous" controls width="640" height="360">
+  </video>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script>
+    let videoUrl = "";
+
+    document.getElementById("btn").addEventListener("click", async function () {
+      const inputUrl = document.getElementById("url").value;
+      const videoPlayer = document.getElementById("video");
+      const downloadButton = document.getElementById("download");
+
+      if (!inputUrl) {
+        alert("Please enter a URL");
+        return;
+      }
+
+      const urlParts = inputUrl.split("/");
+      const id = urlParts[urlParts.length - 1]?.slice(1);
+
+      if (!id) {
+        alert("Invalid URL format");
+        return;
+      }
+
+      const apiUrl = `https://terabox-backend.onrender.com/get_data?url=${id}`;
+
+      try {
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) throw new Error("Failed to fetch video data");
+
+        const data = await response.json();
+        if (data.list && data.list[0]?.dlink) {
+          videoUrl = data.list[0].dlink;
+
+          // Load video into the player
+          videoPlayer.src = videoUrl;
+          videoPlayer.load();
+          videoPlayer.style.display = "block";
+
+          // Enable download button
+          downloadButton.disabled = false;
+        } else {
+          throw new Error("No video link found");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("An error occurred while fetching the video link.");
+      }
+    });
+
+    document.getElementById("download").addEventListener("click", function () {
+      if (videoUrl) {
+        window.location.href = videoUrl;
+      } else {
+        alert("No video available for download.");
+      }
+    });
+  </script>
+</body>
+</html>
