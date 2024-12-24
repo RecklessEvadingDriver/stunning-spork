@@ -1,4 +1,3 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,7 +50,7 @@
             resultDiv.innerHTML = "Processing...";
 
             try {
-                const response = await fetch("/api/fetch", {
+                const response = await fetch("https://terabox-downloader-yftr.onrender.com/api/fetch", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ url }),
@@ -61,10 +60,10 @@
                 if (data.directDownloadLink) {
                     resultDiv.innerHTML = `<a href="${data.directDownloadLink}" target="_blank">Download File</a>`;
                 } else {
-                    resultDiv.innerHTML = `Error: ${data.error || "Unable to fetch download link"}`;
+                    resultDiv.innerHTML = "Error: No download link found.";
                 }
-            } catch (err) {
-                resultDiv.innerHTML = "An error occurred.";
+            } catch (error) {
+                resultDiv.innerHTML = "Error: Something went wrong!";
             }
         });
     </script>
