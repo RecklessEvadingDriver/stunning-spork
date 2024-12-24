@@ -1,0 +1,72 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeraBox Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>TeraBox Downloader</h1>
+    <form id="downloadForm">
+        <input type="text" id="url" placeholder="Enter TeraBox URL" required>
+        <button type="submit">Fetch Download Link</button>
+    </form>
+    <div class="result" id="result"></div>
+
+    <script>
+        document.getElementById("downloadForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const url = document.getElementById("url").value;
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "Processing...";
+
+            try {
+                const response = await fetch("/api/fetch", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url }),
+                });
+                const data = await response.json();
+
+                if (data.directDownloadLink) {
+                    resultDiv.innerHTML = `<a href="${data.directDownloadLink}" target="_blank">Download File</a>`;
+                } else {
+                    resultDiv.innerHTML = `Error: ${data.error || "Unable to fetch download link"}`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = "An error occurred.";
+            }
+        });
+    </script>
+</body>
+</html>
