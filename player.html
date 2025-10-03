@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayerJS - IMDb Video Player</title>
+    
+    <!-- PlayerJS Library -->
+    <script src="https://cdn.plrjs.com/player/uzobovms4m93u8j8/vd8lk7bqe78p/playerjs.js" type="text/javascript"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .search-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        #imdb-search {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        #imdb-search:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        #search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        #search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        #search-btn:active {
+            transform: translateY(0);
+        }
+        
+        .content-section {
+            padding: 30px;
+        }
+        
+        #loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #error-message {
+            display: none;
+            background: #fee;
+            color: #c33;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+        
+        #player-container {
+            display: none;
+            margin-bottom: 30px;
+        }
+        
+        #player {
+            width: 100%;
+            height: 600px;
+            background: #000;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        #content-info {
+            display: none;
+        }
+        
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        #video-title {
+            font-size: 1.8em;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .selectors {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .selector {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .selector:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .selector:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        #video-description {
+            color: #666;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .instructions {
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            list-style-position: inside;
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .instructions code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #764ba2;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            #player {
+                height: 300px;
+            }
+            
+            .info-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            #video-title {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 PlayerJS IMDb Player</h1>
+            <p>Stream movies and TV series using IMDb IDs</p>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="imdb-search" 
+                    placeholder="Enter IMDb ID (e.g., tt0111161 for Shawshank Redemption)"
+                    aria-label="IMDb ID search"
+                >
+                <button id="search-btn">Search</button>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <div id="loading">
+                <div class="spinner"></div>
+                <p>Loading content...</p>
+            </div>
+            
+            <div id="error-message" role="alert"></div>
+            
+            <div id="player-container">
+                <div id="player"></div>
+            </div>
+            
+            <div id="content-info">
+                <div class="info-header">
+                    <h2 id="video-title"></h2>
+                    <div class="selectors">
+                        <select id="season-selector" class="selector" style="display: none;" aria-label="Season selector">
+                            <!-- Populated dynamically -->
+                        </select>
+                        <select id="episode-selector" class="selector" style="display: none;" aria-label="Episode selector">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div id="video-description"></div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Use:</h3>
+            <ul>
+                <li>Enter an IMDb ID in the search box (e.g., <code>tt0111161</code> for movies or <code>tt0903747</code> for TV series)</li>
+                <li>Click the "Search" button or press Enter</li>
+                <li>For movies, the video will start playing automatically</li>
+                <li>For TV series, select the season and episode from the dropdown menus</li>
+                <li>The player supports standard controls: play, pause, volume, fullscreen, etc.</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>&copy; 2024 PlayerJS IMDb Player. Built with PlayerJS and PHP.</p>
+        </footer>
+    </div>
+    
+    <!-- Player Controller Script -->
+    <script src="player.js"></script>
+</body>
+</html>
